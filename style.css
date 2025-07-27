@@ -88,7 +88,7 @@ button {
     gap: 12px;
 }
 
-.topContainer > .clearBtn {
+.topContainer > .deleteBtn {
     flex: 2;
 }
 
@@ -120,7 +120,6 @@ button {
 }
 
 #equalsBtn {
-    flex: 2;
     background-color: #EF6C4E;
 }
 
