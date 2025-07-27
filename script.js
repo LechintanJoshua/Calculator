@@ -1,6 +1,7 @@
 const display = document.querySelector('.display');
 const buttons = document.querySelectorAll('button');
 const numbers = document.querySelectorAll('.numbers > button');
+const deleteBtn = document.querySelector('.deleteBtn');
 const clearBtn = document.querySelector('.clearBtn');
 let number1 = 0;
 let number2 = 0;
@@ -49,6 +50,11 @@ function updateDisplay (number) {
     }
 }
 
+function resetDisplay () {
+    display.textContent = '';
+    pointApearance = 0;
+}
+
 function operate (number1, number2, operator) {
     switch (operator) {
         case '+':
@@ -77,7 +83,12 @@ numbers.forEach(number => number.addEventListener('click', () => {
     
 }));
 
+deleteBtn.addEventListener('click', () => resetDisplay());
+
 clearBtn.addEventListener('click', () => {
-    display.textContent = '';
-    pointApearance = 0;
+    if (display.textContent.length === 1) {
+        resetDisplay();
+    } else {
+        display.textContent = display.textContent.slice(0, -1);
+    }
 });
