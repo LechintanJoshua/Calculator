@@ -7,27 +7,33 @@ const equal = document.querySelector('#equalsBtn');
 const operators = document.querySelectorAll('.operator');
 let number1 = null;
 let number2 = null;
+let pressedOperator = false;
+let finalResult = false;
 let operator = '';
 let pointApearance = 0;
 
 function add (number1, number2) {
-    return number1 + number2;
+    return Number.isInteger(number1 + number2) ? number1 + number2 : (number1 + number2).toFixed(1);
 }
 
 function substract (number1, number2) {
-    return number1 - number2;
+    return Number.isInteger(number1 - number2) ? number1 - number2 : (number1 - number2).toFixed(1);
 }
 
 function multiply (number1, number2) {
-    return number1 * number2;
+    return Number.isInteger(number1 * number2) ? number1 * number2 : (number1 * number2).toFixed(1);
 }
 
 function divide (number1, number2) {
-    return number1 / number2;
+    return Number.isInteger(number1 / number2) ? number1 / number2 : (number1 / number2).toFixed(1);
+}
+
+function modulus (number1, number2) {
+    return Number.isInteger(number1 & number2) ? number1 % number2 : (number1 % number2).toFixed(1);
 }
 
 function checkDisplay () {
-    if (display.textContent.length < 19) {
+    if (display.textContent.length < 17) {
         return true;
     }
 
@@ -42,7 +48,19 @@ function startsWithPoint (num) {
     return false;
 }
 
+function checkOperator () {
+    if (pressedOperator) {
+        display.textContent = '';
+        pressedOperator = false;
+    }
+}
+
 function checkPointApearance (num) {
+    if (finalResult === true) {
+        display.textContent = '';
+        finalResult = false;
+    }
+
     if (startsWithPoint(num)) {
         display.textContent = '0.';
         ++pointApearance;
@@ -54,15 +72,15 @@ function checkPointApearance (num) {
         ++pointApearance;
     } else if (num !== '.') {
         display.textContent += num;
-    }else {
+    } else {
         alert('Only one "." allowed!');
     }
 }
 
 function updateDisplay (num) {
     if (checkDisplay()) {
+        checkOperator();
         checkPointApearance(num);
-
     } else {
         alert('Size is to big');
     }
@@ -72,54 +90,67 @@ function resetDisplay () {
     display.textContent = '';
     pointApearance = 0;
     operator = '';
-    number = null;
+    number1 = null;
+    number2 = null;
+    pressedOperator = false;
+    finalResult = false;
 }
 
-function checkNumber () {
-    if (display.textContent === '') {
-        return false;
-    }
+function continousOperators (e) {
+    pressedOperator = true;
+    pointApearance = 0;
 
-    return true;
+    if (operator === '') {
+        number1 = Number(display.textContent)
+        display.textContent += ` ${e.target.textContent}`;
+        operator = e.target.textContent;
+    } else {
+        number2 = Number(display.textContent);
+        display.textContent += ` ${e.target.textContent}`;
+        operate();
+        operator = e.target.textContent;
+    }
+}
+
+function rewriteScreen () {
+    finalResult = true;
+    number1 =  null;
+    number2 = null;
+    pointApearance = 0;
+    pressedOperator = false;
+    operator = '';
 }
 
 function operate () {
-    const number1 = number;
-    const number2 = Number(display.textContent);
-
-    console.log(operator);
-
     switch (operator) {
         case '+':
-            display.textContent = add(number1, number2).toFixed(1);
+            display.textContent = add(number1, number2);
             break;
 
         case '-':
-            display.textContent = substract(number1, number2).toFixed(1);
+            display.textContent = substract(number1, number2);
             break;
 
         case '*':
-            display.textContent = multiply(number1, number2).toFixed(1);
+            display.textContent = multiply(number1, number2);
             break;
 
         case '/':
-            display.textContent = divide(number1, number2).toFixed(1);
+            if (number2 ===  0) {
+                alert("Can't divide by 0!");
+                resetDisplay();
+                return;
+            }
+
+            display.textContent = divide(number1, number2);
             break;
 
-        // case '=':
-        //     if (display.textContent === '') {
-        //         display.textContent = 0;
-        //     }
-
-        //     if (number1 === null) {
-                
-        //     }
-        //     break;
-
-        default:
-            alert('You must two numbers');
+        case '%':
+            display.textContent = modulus(number1, number2);
+            break;
     }
-} 
+    number1 = Number(display.textContent);
+}
 
 numbersBtn.forEach(num => num.addEventListener('click', () => {
     updateDisplay(num.textContent);
@@ -135,16 +166,12 @@ clearBtn.addEventListener('click', () => {
     }
 });
 
-operators.forEach(ope => ope.addEventListener('click', () => {
-    if (checkNumber()) {
-        operator = ope.textContent;
-        number = Number(display.textContent);
-        display.textContent = '+';
-    }
-}));
+operators.forEach(ope => ope.addEventListener('click', (e) => continousOperators(e)));
 
 equal.addEventListener('click', () => {
-    if (number !== null) {
+    if (operator !== '') {
+        number2 = Number(display.textContent);
         operate();
+        rewriteScreen();
     }
 });
