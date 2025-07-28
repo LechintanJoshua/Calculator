@@ -96,19 +96,19 @@ function resetDisplay () {
     finalResult = false;
 }
 
-function continousOperators (e) {
+function continousOperators (evtString) {
     pressedOperator = true;
     pointApearance = 0;
 
     if (operator === '') {
         number1 = Number(display.textContent)
-        display.textContent += ` ${e.target.textContent}`;
-        operator = e.target.textContent;
+        display.textContent += ` ${evtString}`;
+        operator = evtString;
     } else {
         number2 = Number(display.textContent);
-        display.textContent += ` ${e.target.textContent}`;
+        display.textContent += ` ${evtString}`;
         operate();
-        operator = e.target.textContent;
+        operator = evtString;
     }
 }
 
@@ -119,6 +119,22 @@ function rewriteScreen () {
     pointApearance = 0;
     pressedOperator = false;
     operator = '';
+}
+
+function equalPressed () {
+    if (operator !== '') {
+        number2 = Number(display.textContent);
+        operate();
+        rewriteScreen();
+    }
+}
+
+function clearPressed () {
+    if (display.textContent.length === 1) {
+        resetDisplay();
+    } else {
+        display.textContent = display.textContent.slice(0, -1);
+    }
 }
 
 function operate () {
@@ -158,20 +174,37 @@ numbersBtn.forEach(num => num.addEventListener('click', () => {
 
 deleteBtn.addEventListener('click', () => resetDisplay());
 
-clearBtn.addEventListener('click', () => {
-    if (display.textContent.length === 1) {
-        resetDisplay();
-    } else {
-        display.textContent = display.textContent.slice(0, -1);
-    }
-});
+clearBtn.addEventListener('click', () => clearPressed());
 
-operators.forEach(ope => ope.addEventListener('click', (e) => continousOperators(e)));
+operators.forEach(ope => ope.addEventListener('click', (e) => continousOperators(e.target.textContent)));
 
-equal.addEventListener('click', () => {
-    if (operator !== '') {
-        number2 = Number(display.textContent);
-        operate();
-        rewriteScreen();
+equal.addEventListener('click', () => equalPressed());
+
+document.addEventListener('keydown', (e) => {
+    const isNumberKey = '0123456789.'.includes(e.key);
+    const isOperatorKey = '+-*/%'.includes(e.key);
+    const isEqualKey = (e.key === '=' || e.key === 'Enter');
+    const isBackspaceKey = (e.key === 'Backspace');
+    const isDeleteKey = (e.key === 'd');
+
+    switch (true) {
+        case isNumberKey:
+            updateDisplay(e.key);
+            break;
+
+        case isOperatorKey:
+            continousOperators(e.key);
+            break;
+
+        case isEqualKey:
+            equalPressed();
+            break;
+
+        case isBackspaceKey:
+            clearPressed();
+            break;
+
+        case isDeleteKey:
+            resetDisplay();
     }
 });
