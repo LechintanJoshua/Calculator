@@ -1,15 +1,14 @@
 const display = document.querySelector('.display');
 const buttons = document.querySelectorAll('button');
-const numbers = document.querySelectorAll('.numbers > button');
+const numbersBtn = document.querySelectorAll('.numbers > button');
 const deleteBtn = document.querySelector('.deleteBtn');
 const clearBtn = document.querySelector('.clearBtn');
-let number1 = 0;
-let number2 = 0;
+const equal = document.querySelector('#equalsBtn');
+const operators = document.querySelectorAll('.operator');
+let number1 = null;
+let number2 = null;
 let operator = '';
 let pointApearance = 0;
-let content = display.textContent;
-
-display.textContent = '';
 
 function add (number1, number2) {
     return number1 + number2;
@@ -35,16 +34,35 @@ function checkDisplay () {
     return false;
 }
 
-function updateDisplay (number) {
+function startsWithPoint (num) {
+    if (display.textContent === '' && num === '.') {
+        return true;
+    }
+
+    return false;
+}
+
+function checkPointApearance (num) {
+    if (startsWithPoint(num)) {
+        display.textContent = '0.';
+        ++pointApearance;
+        return;    
+    }  
+    
+    if (num === '.' && pointApearance < 1) {
+        display.textContent = Number(display.textContent) + '.';
+        ++pointApearance;
+    } else if (num !== '.') {
+        display.textContent += num;
+    }else {
+        alert('Only one "." allowed!');
+    }
+}
+
+function updateDisplay (num) {
     if (checkDisplay()) {
-        if (number === '.' && pointApearance < 1) {
-            display.textContent += number;
-            ++pointApearance;
-        } else if (number !== '.') {
-            display.textContent += number;
-        }else {
-            alert('Only one "." allowed!');
-        }
+        checkPointApearance(num);
+
     } else {
         alert('Size is to big');
     }
@@ -53,34 +71,58 @@ function updateDisplay (number) {
 function resetDisplay () {
     display.textContent = '';
     pointApearance = 0;
+    operator = '';
+    number = null;
 }
 
-function operate (number1, number2, operator) {
+function checkNumber () {
+    if (display.textContent === '') {
+        return false;
+    }
+
+    return true;
+}
+
+function operate () {
+    const number1 = number;
+    const number2 = Number(display.textContent);
+
+    console.log(operator);
+
     switch (operator) {
         case '+':
-            add(numbe1, number2);
+            display.textContent = add(number1, number2).toFixed(1);
             break;
 
         case '-':
-            substract(number1, number2);
+            display.textContent = substract(number1, number2).toFixed(1);
             break;
 
         case '*':
-            multiply(numbe1, number2);
+            display.textContent = multiply(number1, number2).toFixed(1);
             break;
 
         case '/':
-            divide(number1, number2)
+            display.textContent = divide(number1, number2).toFixed(1);
             break;
 
-        default:
+        // case '=':
+        //     if (display.textContent === '') {
+        //         display.textContent = 0;
+        //     }
 
+        //     if (number1 === null) {
+                
+        //     }
+        //     break;
+
+        default:
+            alert('You must two numbers');
     }
 } 
 
-numbers.forEach(number => number.addEventListener('click', () => {
-    updateDisplay(number.textContent);
-    
+numbersBtn.forEach(num => num.addEventListener('click', () => {
+    updateDisplay(num.textContent);
 }));
 
 deleteBtn.addEventListener('click', () => resetDisplay());
@@ -90,5 +132,19 @@ clearBtn.addEventListener('click', () => {
         resetDisplay();
     } else {
         display.textContent = display.textContent.slice(0, -1);
+    }
+});
+
+operators.forEach(ope => ope.addEventListener('click', () => {
+    if (checkNumber()) {
+        operator = ope.textContent;
+        number = Number(display.textContent);
+        display.textContent = '+';
+    }
+}));
+
+equal.addEventListener('click', () => {
+    if (number !== null) {
+        operate();
     }
 });
